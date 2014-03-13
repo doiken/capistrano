@@ -14,10 +14,10 @@ set :repo_url, 'file:///vagrant/genius/'
 ##
 set :scm, :s3
 set :deploy_to, '/spacyz/adserver/'
-set :bucket_dir, 'ultima-package/adserver/'
-set :build_id, 955
-set :object_name, 'genius-src.tgz'
-set :bucket_path, "#{fetch(:bucket_dir)}#{fetch(:build_id)}/#{fetch(:object_name)}"
+bucket_dir = ENV['BUCKET'] || 'ultima-package/adserver/'
+build_id = ENV['BUILD_ID']
+object_name = ENV['OBJECT'] || 'genius-src.tgz'
+set :bucket_path, "#{bucket_dir}#{build_id}/#{object_name}"
 set :archive_type, :tar # [:raw(mvのみ)|:zip|:tar]
 set :tar_strip, 1 # 0: Do Nothing, 1: Strip Root Directory
 # set :linked_files, %w{config/database.yml}

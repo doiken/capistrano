@@ -5,13 +5,12 @@ require 'capistrano/scm'
 class Capistrano::S3 < Capistrano::SCM
 
   # execute s3 with argument in the context
-  #
   def s3(*args)
     context.execute *args
   end
 
   def get_tmp_dir()
-    "ultima-package/adserver/"
+    "#{fetch(:tmp_dir)}/#{fetch(:application)}/"
   end
 
   def get_cache_path()
@@ -22,7 +21,7 @@ class Capistrano::S3 < Capistrano::SCM
     "s3://#{fetch(:bucket_path)}"
   end
 
-  # The Capistrano default strategy for s3. You should want to use this.
+  # The Capistrano default strategy for s3.
   module DefaultStrategy
     def check
       # 都度s3cmd lsするのは高コストのため割愛
@@ -30,10 +29,6 @@ class Capistrano::S3 < Capistrano::SCM
 
       #s3cmd = sprintf('"`s3cmd ls %s`"', get_s3url)
       #test! "test -n #{s3cmd}"
-    end
-
-    def clone
-      # Do Nothing
     end
 
     def update
@@ -52,11 +47,12 @@ class Capistrano::S3 < Capistrano::SCM
         when :zip then extract_zip!(File.basename(fetch(:bucket_path)), release_path)
         when :raw then extract_raw!(File.basename(fetch(:bucket_path)), release_path)
         else
+          raise RuntimeError.new("Set Invalid :archive_type #{fetch(:archive_type)}")
       end
     end
 
     def extract_tar!(from, to)
-      s3 :tar, 'xzf', from, '-C', to, "--strip-components=#{fetch(:tar_strip)}"
+      s3 :tar, 'xzf', from, '-C', to, "--strip-components=#{fetch(:tar_strip, 0)}"
     end
 
     def extract_zip!(from, to)

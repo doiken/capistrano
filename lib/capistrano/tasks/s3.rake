@@ -8,7 +8,7 @@ namespace :s3 do
     "#{fetch(:tmp_dir)}/#{fetch(:application)}/"
   end
 
-  desc 'Check that the repository is reachable'
+  desc 'Check If S3 is Available'
   task :check do
     run_locally do
       execute :mkdir, '-p', get_tmp_dir()
@@ -18,18 +18,9 @@ namespace :s3 do
     end
   end
 
-  desc 'Clone the repo to the cache'
-  task :clone do
-    run_locally do
-      execute :mkdir, '-p', get_tmp_dir()
-      within "#{fetch(:tmp_dir)}/#{fetch(:application)}/" do
-        strategy.clone
-      end
-    end
-  end
-
-  desc 'Update the repo mirror to reflect the origin state'
-  task update: :'s3:clone' do
+  desc 'Update Package From S3'
+  task :update do
+    next if ENV['SKIP_UPDATE']
     run_locally do
       execute :mkdir, '-p', get_tmp_dir()
       within "#{fetch(:tmp_dir)}/#{fetch(:application)}/" do
@@ -38,12 +29,13 @@ namespace :s3 do
     end
   end
 
-  desc 'Copy repo to releases'
+  desc 'Invoke Upload & Extract Tasks'
   task create_release: :'s3:update' do
     invoke 's3:upload'
     invoke 's3:extract'
   end
 
+  desc 'Upload Package'
   task :upload do
     on release_roles :all do
       within get_tmp_dir() do
@@ -53,6 +45,7 @@ namespace :s3 do
     end
   end
 
+  desc 'Extract Package'
   task :extract do
     on release_roles :all do
       within get_tmp_dir() do
