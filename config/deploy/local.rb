@@ -15,7 +15,7 @@ set :stage, :local
 # something that quacks like a hash can be used to set
 # extended properties on the server.
 # server 'example.com', user: 'deploy', roles: %w{web app}, my_property: :my_value
-server '172.19.204.98', user: 'vagrant', roles: %w{ad}, port: 10022
+server '172.19.197.132', user: 'vagrant', roles: %w{ad, imp}, port: 10022
 
 # you can set custom ssh options
 # it's possible to pass any option but you need to keep in mind that net/ssh understand limited list of options
