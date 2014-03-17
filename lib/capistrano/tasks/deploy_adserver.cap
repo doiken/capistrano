@@ -66,8 +66,6 @@ namespace :deploy do
   after 'symlink:release', :service_start
   after :service_start, :get_summary_report
   after :service_start, :maintanance_off
-
-  task :role
 end
 
 namespace :load do
