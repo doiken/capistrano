@@ -35,7 +35,7 @@ class Adserver < BaseService
   end
 
   # Wait Until Tomcat Stop
-  def stop_webserver!
+  def service_stop!
     # Kick Stop Command
     as 'root' do
       execute '/etc/init.d/httpd', 'stop'
