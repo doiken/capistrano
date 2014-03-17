@@ -30,6 +30,7 @@ set :maintenance_path, '/usr/java/tomcat/webapps/ROOT/maintenance.txt' # For Tom
 set :classpath, '/usr/java/tomcat/lib/servlet-api.jar' # For Ant Build
 set :tomcat_log_path, '/spacyz/var/log/deliver/tomcat.log'
 set :wait_tomcat, 20 # tomcat終了停止待機retry回数
+
 ##
 ## Logging
 ##

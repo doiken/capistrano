@@ -9,7 +9,7 @@ class Adserver < BaseService
   end
 
   # Wait Until Request Stop
-  def maintenance_enable!
+  def maintenance_on!
     as 'root' do
       # 結果は取得しないが終了ステータスを無視するためにtestを利用
       test :touch, fetch(:maintenance_path)
@@ -80,8 +80,17 @@ class Adserver < BaseService
     sleep 5
   end
 
-  def check_if_service_available?
-    test :wget, 'http://localhost:8080/sm/?cmd=rev', '-T 90', '-O -'
+  def maintenance_off!
+    execute '/etc/init.d/httpd', 'start'
+    _watch_untill_service_on
+  end
+
+  def _watch_untill_service_on
+    #@todo
+  end
+
+  def get_summary_action
+    execute :wget, 'http://localhost:8080/sm/?cmd=rev', '-T 90', '-O -'
   end
 
   private
