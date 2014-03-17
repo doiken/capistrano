@@ -67,3 +67,12 @@ namespace :deploy do
   after :service_start, :get_summary_report
   after :service_start, :maintanance_off
 end
+
+namespace :load do
+  task :defaults do
+    set :maintenance_path, '/usr/java/tomcat/webapps/ROOT/maintenance.txt' # For Tomcat Maintenance
+    set :classpath, '/usr/java/tomcat/lib/servlet-api.jar' # For Ant Build
+    set :tomcat_log_path, '/spacyz/var/log/deliver/tomcat.log'
+    set :wait_tomcat, 20 # tomcat終了停止待機retry回数
+  end
+end
