@@ -17,6 +17,14 @@ class BaseService
     context.test *args
   end
 
+  # Ignore Exit Status Code
+  def execute_force(*args)
+    options = args.extract_options!.merge(
+        raise_on_non_zero_exit: false,
+    )
+    context.execute(*[*args, options])
+  end
+
   # Capture from the Context
   def capture(*args)
     context.capture *args

@@ -23,6 +23,8 @@ set :tar_strip, 1 # 0: Do Nothing, 1: Strip Root Directory
 # set :linked_files, %w{config/database.yml}
 # set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 
+set :para_limit, 3     # 同時デプロイサーバ数(一部でのみ利用)
+set :para_interval, 3  # デプロイグループ毎のインターバル
 ##
 ## Adserver
 ##
@@ -44,7 +46,7 @@ set :log_level, :info
 ##
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
 # set :keep_releases, 5
-set :keep_releases, 1
+set :keep_releases, 3
 
 namespace :deploy do
   desc 'Restart application'

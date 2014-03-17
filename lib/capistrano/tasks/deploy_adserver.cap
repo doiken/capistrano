@@ -27,7 +27,7 @@ namespace :deploy do
   desc 'Stop Service'
   task :service_stop do
     on release_roles(:ad, :imp) do
-      adserver.stop_webserver!
+      adserver.service_stop!
       adserver.remove_server_cache_files!
     end
   end
@@ -66,4 +66,24 @@ namespace :deploy do
   after 'symlink:release', :service_start
   after :service_start, :get_summary_report
   after :service_start, :maintanance_off
+
+  desc 'Build & Restart Server'
+  task :build do
+    on release_roles(:ad, :imp), in: :groups, limit: fetch(:para_limit, 3), wait: fetch(:para_interval, 3) do
+      adserver.maintenance_on!
+      adserver.service_stop!
+      adserver.build!
+      adserver.service_start!
+      adserver.maintenance_off!
+    end
+  end
+end
+
+namespace :load do
+  task :defaults do
+    set :maintenance_path, '/usr/java/tomcat/webapps/ROOT/maintenance.txt' # For Tomcat Maintenance
+    set :classpath, '/usr/java/tomcat/lib/servlet-api.jar' # For Ant Build
+    set :tomcat_log_path, '/spacyz/var/log/deliver/tomcat.log'
+    set :wait_tomcat, 20 # tomcat終了停止待機retry回数
+  end
 end

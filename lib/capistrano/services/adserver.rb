@@ -12,7 +12,7 @@ class Adserver < BaseService
   def maintenance_on!
     as 'root' do
       # 結果は取得しないが終了ステータスを無視するためにtestを利用
-      test :touch, fetch(:maintenance_path)
+      execute_force :touch, fetch(:maintenance_path)
     end
 
     # リクエストの確認
@@ -35,7 +35,7 @@ class Adserver < BaseService
   end
 
   # Wait Until Tomcat Stop
-  def stop_webserver!
+  def service_stop!
     # Kick Stop Command
     as 'root' do
       execute '/etc/init.d/httpd', 'stop'
@@ -109,7 +109,7 @@ class Adserver < BaseService
   def _kill_tomcat!
     as 'root' do
       # 実行タイミングにより失敗を防ぐため、test実行
-      test :kill, 'pgrep -f org.apache.catalina.startup.Bootstrap'
+      execute_force :kill, 'pgrep -f org.apache.catalina.startup.Bootstrap'
     end
   end
 
