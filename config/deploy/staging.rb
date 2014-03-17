@@ -11,6 +11,6 @@ end
 ## Global Setting
 ##
 set :ssh_options, {
-    user => 'amoad'
+    :user => 'amoad'
 }
 
