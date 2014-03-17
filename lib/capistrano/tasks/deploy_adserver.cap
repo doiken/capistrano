@@ -1,0 +1,69 @@
+require File.expand_path('../../services/adserver.rb', __FILE__)
+
+# Project固有のDeployFlowを作成
+#
+# Capistrano v3 のtask実行順序は下記を参照
+# @see http://capistranorb.com/documentation/getting-started/flow/
+namespace :deploy do
+  def adserver
+    @adserver ||= Adserver.new(self)
+  end
+
+  desc 'Prepare Release Source. (Build, Shell Env)'
+  after :updating, :prepare_src do
+    on release_roles(:ad, :imp) do
+      adserver.build!
+      adserver.prepare_shell!
+    end
+  end
+
+  desc 'Set Maintenance Mode'
+  task :maintenance_on do
+    on release_roles(:ad, :imp) do
+      adserver.maintenance_on!
+    end
+  end
+
+  desc 'Stop Service'
+  task :service_stop do
+    on release_roles(:ad, :imp) do
+      adserver.stop_webserver!
+      adserver.remove_server_cache_files!
+    end
+  end
+
+  desc 'Start Service'
+  task :service_start do
+    on release_roles(:ad, :imp) do
+      adserver.service_start!
+    end
+  end
+
+  desc 'Get Summary Repport'
+  task :get_summary_report do
+    on release_roles(:ad, :imp) do
+      adserver.get_summary_action
+    end
+  end
+
+  desc 'Unset Maintenance Mode'
+  task :maintanance_off do
+    on release_roles(:ad, :imp) do
+      adserver.maintenance_off!
+    end
+  end
+
+  # releaseの前後でmaintenance及びサービスのリスタートを実施@ad, imp
+  #
+  # リンク切り替えを実施するdeploy:publishingを下記の通り変更している
+  # 1. maintenance_on
+  # 2. service_stop
+  # 3. symlink:release * 既存のdeploy:publishing処理
+  # 4. service_start
+  # 5. maintenance_off
+  before :service_stop, :maintenance_on
+  before 'symlink:release', :service_stop
+  after 'symlink:release', :service_start
+  after :service_start, :get_summary_report
+  after :service_start, :maintanance_off
+end
