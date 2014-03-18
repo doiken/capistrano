@@ -34,7 +34,7 @@ namespace :deploy do
 
   desc 'Start Service'
   task :service_start do
-    on release_roles(:ad, :imp) do
+    on release_roles(:ad, :imp), wait: 5 do
       adserver.service_start!
     end
   end
@@ -85,5 +85,6 @@ namespace :load do
     set :classpath, '/usr/java/tomcat/lib/servlet-api.jar' # For Ant Build
     set :tomcat_log_path, '/spacyz/var/log/deliver/tomcat.log'
     set :wait_tomcat, 20 # tomcat終了停止待機retry回数
+    set :wait_service_on, 0 # 起動後にヘルスチェックへの失敗を許容する回数
   end
 end

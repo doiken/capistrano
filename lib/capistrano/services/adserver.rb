@@ -46,7 +46,7 @@ class Adserver < BaseService
     # 監視し必要に応じてkill
     if _is_tomcat_survive?()
       debug 'Tomcat is Active'
-      _wait_context_destroyed()
+      _wait_untill_context_destroyed()
 
       p _is_tomcat_survive?()
       if _is_tomcat_survive?() > 0
@@ -71,22 +71,18 @@ class Adserver < BaseService
   end
 
   def service_start!
-    sleep 5
     as 'root' do
       execute :svc, '-d', '/services/kumo-gateway'
       execute :svc, '-u', '/services/kumo-gateway'
       execute '/etc/init.d/tomcat6', 'start'
     end
-    sleep 5
+
+    _wait_untill_server_available
+    _warmup_server
   end
 
   def maintenance_off!
     execute '/etc/init.d/httpd', 'start'
-    _watch_untill_service_on
-  end
-
-  def _watch_untill_service_on
-    #@todo
   end
 
   def get_summary_action
@@ -120,7 +116,7 @@ class Adserver < BaseService
   # tomcatの停止をできるだけ待ってみる
   #
   #
-  def _wait_context_destroyed
+  def _wait_untill_context_destroyed
     loop = 0
     loop_limit = fetch(:wait_tomcat)
     while loop < loop_limit do
@@ -152,4 +148,32 @@ class Adserver < BaseService
     capture(*cmd_get_tomcat_cnt).to_i > 0
   end
 
+  def _warmup_server
+    warmup_url = fetch(:warmup_url, 'http://localhost:8080/ad/jsonp/?sid=62056d310111552cf067dff118af7e05d27c39358d5d5b3ba918f121194f06d6&url=http%3A//2ch-c.net/s/&ref=http%3A//2ch-c.net/s/&rnd=760&version=1.1')
+    user_agent  = 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25'
+    cookie      = 'uid=apMhbqXjTJPgSwzX'
+    execute :curl, '--silent', '--fail', "'#{warmup_url}'", '-A', "'#{user_agent}'", '-b', "'#{cookie}'"
+  end
+
+  def _wait_untill_server_available
+    sleep 2
+
+    loop = 0
+    loop_limit = fetch(:wait_service_on)
+    health_check_url = fetch(:warmup_url, 'http://localhost:8080/hc/jsonp/?sid=62056d310111552cf067dff118af7e05d27c39358d5d5b3ba918f121194f06d6&url=http%3A//2ch-c.net/s/&ref=http%3A//2ch-c.net/s/&rnd=760&version=1.1')
+    user_agent  = 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25'
+    cookie      = 'uid=apMhbqXjTJPgSwzX'
+
+    while loop < loop_limit do
+      if execute_force :curl, '--silent', '--fail', "'#{health_check_url}'", '-A', "'#{user_agent}'", '-b', "'#{cookie}'" then
+        return
+      end
+      loop += 1
+      info 'Retrying Health Checking...'
+      sleep(1)
+    end
+
+    error "Health Check Failed #{loop_limit} Times"
+    fail()
+  end
 end
