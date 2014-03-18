@@ -4,13 +4,12 @@ capistrano
 install
 -------
 
-ruby >= 1.9
-rbenv + .ruby_versionにて記載を想定
-(現在は1.9.3-p545を記載)
-
 ```
 cd /path/to/repository_root
 bundle
+
+# ruby >= 1.9  
+# rbenv + .ruby_versionにて記載を想定 (現在は1.9.3-p545を記載)
 ```
 
 deployコマンド
