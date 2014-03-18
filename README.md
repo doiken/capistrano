@@ -39,45 +39,9 @@ bundle exec cap deploy production --roles=imp BUILD_ID=XXX
 
 ```
 
-buildコマンド
--------------
-
-/path/to/current/deliverディレクトリ下のwarビルド、serviceリスタートの実施 
-
-- ad
-
-```
-bundle exec cap deploy production --roles=ad BUILD_ID=XXX
-```
-
-- imp
-
-```
-bundle exec cap deploy production --roles=imp BUILD_ID=XXX
-```
-
-rollbackコマンド
-----------------
-
-直前のリリースに切り替え、serviceリスタートの実施
-※ 指定巻き戻しはBUILD_ID再指定による際deployを想定
-
-- ad
-
-```
-bundle exec cap deploy:rollback production --roles=ad
-```
-
-- imp
-
-```
-bundle exec cap deploy:rollback production --roles=imp
-```
-
 todo
 ----
 
 - ヘルスチェックapiの実装
-- 分割リリース方式の検討
 - ステージングテスト(development -> staging)
 - 本レポジトリの設置場所検討
